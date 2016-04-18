@@ -13,6 +13,7 @@
          */
         ajax : function(url, arg, callback){
 
+            var echo = false;
             var xhr = new XMLHttpRequest();
 
             xhr.onreadystatechange = function(){
@@ -25,7 +26,7 @@
                         break;
                     case 1:
     
-                        console.log("connection opened : "+ url);
+                        if(echo) console.log("connection opened : "+ url);
                         break;
                     case 2:
     
@@ -35,18 +36,21 @@
                         var lastMod = xhr.getResponseHeader("Last-Modified");
                         var server = xhr.getResponseHeader("Server");
     
-                        console.log(" headers received : "+ url);
-                        console.log("  response status : "+ xhr.status);
-                        //console.log("           length : "+ length);
-                        console.log("    response type : "+ type);
+                        if(echo){
+
+                            console.log(" headers received : "+ url);
+                            console.log("  response status : "+ xhr.status);
+                            //console.log("           length : "+ length);
+                            console.log("    response type : "+ type);
+                        }
                         break;
                     case 3:
     
-                        console.log("          loading : "+ url);
+                        if(echo) console.log("          loading : "+ url);
                         break;
                     case 4:
     
-                        console.log("         finished : "+ url);
+                        if(echo) console.log("         finished : "+ url);
                         
                         if(xhr.status === 200){
 
@@ -59,14 +63,20 @@
 
                                 callback(xhr.responseText);
                             }
-                        };
+                        }
+                        else{
+
+                            console.log(xhr);
+                            var win = window.open("", "Title", "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=780, height=200, top="+(screen.height-400)+", left="+(screen.width-840));
+                            win.document.body.innerHTML = xhr.responseText;
+                        }
                         break;
                     default:
                         break;
                 }
             };
             
-            console.log("--------------- AJAX ---------------");
+            if(echo) console.log("--------------- AJAX ---------------");
             xhr.open("POST", encodeURI(url));
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.send(encodeURI(arg));

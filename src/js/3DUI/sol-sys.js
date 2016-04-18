@@ -8,7 +8,8 @@
 
     global.SolSys = function(){
 
-        this.debug = true;
+        this.debug = false;
+        this.scalar = 80;
 
         //Web GL, Three JS components
         this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
@@ -118,6 +119,32 @@
                     "/mpc/src/img/unit_circle.png",
                     loadUnitCircle.bind(this)
                 );
+            }
+        };
+
+        this.drawOrbits = function(orbits){
+
+            console.log(orbits);
+
+            for(var orbit in orbits){
+
+                var objOrb = new OrbObj();
+
+                //orbital elements
+                objOrb.name             = orbits[orbit][1];                 //Provential Designation
+                objOrb.aphelion         = parseFloat(orbits[orbit][3]);     //Aphelion
+                objOrb.perihelion       = parseFloat(orbits[orbit][2]);     //Perihelion
+                objOrb.majorAxis        = parseFloat(orbits[orbit][12]) * 2;//Semimajor Axis
+                objOrb.eccentricity     = parseFloat(orbits[orbit][11]);    //Eccentricity
+                objOrb.inclination      = parseFloat(orbits[orbit][10]);    //Inclination
+                objOrb.ascendingNode    = parseFloat(orbits[orbit][9]);     //Ascending Node
+                objOrb.argOfPerihelion  = parseFloat(orbits[orbit][8]);     //Argument of Perihelion
+
+                //rendering elements
+                objOrb.scalar = this.scalar;
+                objOrb.anchor = this.scene;
+
+                objOrb.drawOrbit();
             }
         };
 

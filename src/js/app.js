@@ -17,19 +17,19 @@
             this.solSys = new SolSys();
             
             /**
-             * Here we manually set orbiting object ids and then call
-             * a cgi script to get the orbits.
+             * Here we manually set orbiting object ids on RENDER_LIST
+             * and then call a cgi script to get the orbits.
              */
             if(typeof RENDER_LIST !== "undefined"){       
 
                 var getOrbitsHandler = function(response){
-
-                    console.log(response.sup);
+                    
+                    if(response.success) this.solSys.drawOrbits(response.data);
                 };
 
-                var url = "/mpc/service/get-orbits.cgi";
-                var arg = "objectIds="+ RENDER_LIST.join(",");
-                Utils.ajax(url, arg, getOrbitsHandler);
+                var url = "/mpc/service/api/get-orbits.cgi";
+                var arg = "ids="+ RENDER_LIST.join(",");
+                Utils.ajax(url, arg, getOrbitsHandler.bind(this));
             }
         }    
     };

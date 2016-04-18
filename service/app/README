@@ -1,0 +1,2 @@
+The main python application for churning and mungning data. 
+This app should also serve the JS front end via the "api" scripts.

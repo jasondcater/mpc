@@ -1,1 +1,4 @@
-var RENDER_LIST = [1234,5678];
+var RENDER_LIST = [
+
+    "2016 GK222"
+];
