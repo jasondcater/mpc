@@ -27,7 +27,7 @@
                     if(response.success) this.solSys.drawOrbits(response.data);
                 };
 
-                var url = "/mpc/service/api/get-orbits.cgi";
+                var url = "/service/api/get-orbits.cgi";
                 var arg = "ids="+ RENDER_LIST.join(",");
                 Utils.ajax(url, arg, getOrbitsHandler.bind(this));
             }
