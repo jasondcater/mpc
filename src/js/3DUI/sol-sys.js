@@ -122,30 +122,18 @@
             }
         };
 
-        this.drawOrbits = function(orbits){
-
-            console.log(orbits);
+        this.drawVectorOrbits = function(orbits){
 
             for(var orbit in orbits){
 
-                var objOrb = new OrbObj();
-
-                //orbital elements
-                objOrb.name             = orbits[orbit][1];                 //Provential Designation
-                objOrb.aphelion         = parseFloat(orbits[orbit][3]);     //Aphelion
-                objOrb.perihelion       = parseFloat(orbits[orbit][2]);     //Perihelion
-                objOrb.majorAxis        = parseFloat(orbits[orbit][12]) * 2;//Semimajor Axis
-                objOrb.eccentricity     = parseFloat(orbits[orbit][11]);    //Eccentricity
-                objOrb.inclination      = parseFloat(orbits[orbit][10]);    //Inclination
-                objOrb.ascendingNode    = parseFloat(orbits[orbit][9]);     //Ascending Node
-                objOrb.argOfPerihelion  = parseFloat(orbits[orbit][8]);     //Argument of Perihelion
-
-                //rendering elements
-                objOrb.scalar = this.scalar;
-                objOrb.anchor = this.scene;
-
-                objOrb.drawOrbit();
+                var objOrb = new OrbObj(this.scene, this.scalar);
+                objOrb.drawLineOrbit(orbits[orbit]);
             }
+        };
+
+        this.drawPointOrbits = function(){
+
+
         };
 
         /**
