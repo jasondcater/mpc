@@ -30,20 +30,30 @@
              */
             var RENDER_LIST = [
 
+                "Mercury",
+                "Venus",
                 "EM_Bary"
             ];
 
-            if(typeof RENDER_LIST !== "undefined"){       
+            var vectorOrbitHandler = function(response){
 
-                var getOrbitsHandler = function(response){
-                    
-                    if(response.success) this.solSys.drawVectorOrbits(response.data);
-                };
-
-                var url = "/mpc/service/api/get-orbits.cgi";
-                var arg = "ids="+ RENDER_LIST.join(",") + "&db=12";
-                Utils.ajax(url, arg, getOrbitsHandler.bind(this));
+                if(response.success) this.solSys.drawVectorOrbits(response.data);
             }
+
+            var url = "/mpc/service/api/get-vector-orbits.cgi";
+            var arg = "ids="+ RENDER_LIST.join(",") + "&db=12";
+            Utils.ajax(url, arg, vectorOrbitHandler.bind(this));
+
+            /*
+            var pointOrbitHandler = function(response){
+
+                if(response.success) this.solSys.drawPointOrbits(response.data);
+            }
+
+            var url = "/mpc/service/api/get-point-orbits.cgi";
+            var arg = "";
+            Utils.ajax(url, arg, pointOrbitHandler.bind(this));
+            */
         }    
     };
 })(this);

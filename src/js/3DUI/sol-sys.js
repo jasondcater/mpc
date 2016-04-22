@@ -4,6 +4,8 @@
 
     /**
      * Entry point for the 3D portion of the UI
+     * The reference frame is set to the Heliocentric-Ecliptic Coordinate System
+     * https://en.wikipedia.org/wiki/Ecliptic_coordinate_system
      */
 
     global.SolSys = function(){
@@ -24,7 +26,7 @@
         this.cameraPitch = 45;//degrees
         this.yawRange = 540;//degrees
         this.pitchRange = 180;//degrees
-        this.cameraDistance = 800;
+        this.cameraDistance = 200;
         this.navigate = false;
 
         /**
@@ -105,10 +107,9 @@
                     unitCircleMat.anisotropy = 16;
                     
                     //set to the Earth Centered Inertial Frame
-                    var unitCircleGeom = new THREE.CircleGeometry(300, 32, 0, 2*Math.PI);
+                    var unitCircleGeom = new THREE.CircleGeometry(50, 32, 0, 2*Math.PI);
                     var unitCircle = new THREE.Mesh(unitCircleGeom, unitCircleMat);
                     unitCircle.rotation.x = -(Math.PI/2);
-                    unitCircle.rotation.z = (Math.PI/2);
 
                     this.scene.add(unitCircle);
                 }
@@ -131,9 +132,10 @@
             }
         };
 
-        this.drawPointOrbits = function(){
+        this.drawPointOrbits = function(orbit){
 
-
+            var objOrb = new OrbObj(this.scene, this.scalar);
+            objOrb.drawPointOrbit(orbit)
         };
 
         /**
