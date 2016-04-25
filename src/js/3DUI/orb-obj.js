@@ -5,7 +5,7 @@
     /**
      * Represents an object that orbits in the Solar System
      *
-     * A good table of element calculation can be found here:
+     * A good table of element calculations can be found here:
      * http://www.bogan.ca/orbits/kepler/orbteqtn.html
      */
 
@@ -24,35 +24,87 @@
             var semiMinAx = semiMajAx * Math.sqrt(1-Math.pow(eccentricity,2));
 
             var argOfPerihelion = orbitalElements[8];
+            if(argOfPerihelion < 0) argOfPerihelion + 360;
+
             var ascendingNode = orbitalElements[9];
             var inclination = orbitalElements[10];
 
             //calculate the perihelion; q = a (1 - e)
             var perihelion = semiMajAx * (1 - eccentricity);
 
-            //render the ellipse of the orbit, calc the major and minor axes 
-            var ellipse = new THREE.EllipseCurve(0, 0, semiMinAx*scale, semiMajAx*scale, 0, 2*Math.PI, false);
+            var ellipseCurve = new THREE.EllipseCurve(0, 0, semiMajAx*scale, semiMinAx*scale, 0, 2*Math.PI, false);
             var ellipsePath = new THREE.CurvePath();
-            ellipsePath.add(ellipse);
+            ellipsePath.add(ellipseCurve);
             var ellipseGeometry = ellipsePath.createPointsGeometry(100);
 
-            //draw the ellipse
-            var material = new THREE.LineBasicMaterial({color:this.color, opacity:.8, linewidth:2, transparent:true});
-            var orbit = new THREE.Line(ellipseGeometry, material);
-
-            //perihelion offset
             var offset = (semiMajAx - perihelion) * scale;
-            orbit.position.y = -(offset);
+            var ellipseMat = new THREE.LineBasicMaterial({color:this.color, opacity:.8, linewidth:2, transparent:true});
+            var ellipse = new THREE.Line(ellipseGeometry, ellipseMat);
+            ellipse.position.x = -(offset);
 
-            //tilt the ellipse for the inclination
-            orbit.rotation.x = this.degToRad(inclination);
+            var argPeriObj = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({color: 0xffff00}));
+            argPeriObj.add(ellipse);
+            argPeriObj.rotation.z = this.degToRad(argOfPerihelion);
 
-            //rotate the orbit so the acending node crosses the ecliptic at the right position
+            var inclineObj = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({color: 0xffff00}));
+            inclineObj.add(argPeriObj);
+            inclineObj.rotation.x = this.degToRad(inclination);
+
+            var ascNodeObj = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({color: 0xffff00}));
+            ascNodeObj.add(inclineObj);
+            ascNodeObj.rotation.z = this.degToRad(ascendingNode);
+
             var center = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({color: 0xffff00}));
+            center.add(ascNodeObj);
             center.rotation.x = -(Math.PI/2);
-            center.rotation.z = this.degToRad(ascendingNode);
 
-            center.add(orbit);
+            this.anchor.add(center);
+        };
+
+        //draw orbit using osculating orbital elements
+        this.drawSpecialOrbit = function(orbitalElements){
+
+            var scale = this.scalar;
+            var eccentricity = orbitalElements[1];
+            var semiMajAx = orbitalElements[0];
+            var semiMinAx = semiMajAx * Math.sqrt(1-Math.pow(eccentricity,2));
+
+            var argOfPerihelion = orbitalElements[4];
+            if(argOfPerihelion < 0) argOfPerihelion + 360;
+
+            var ascendingNode = orbitalElements[5];
+            var inclination = orbitalElements[2];
+
+            //calculate the perihelion; q = a (1 - e)
+            var perihelion = semiMajAx * (1 - eccentricity);
+
+            var ellipseCurve = new THREE.EllipseCurve(0, 0, semiMajAx*scale, semiMinAx*scale, 0, 2*Math.PI, false);
+            var ellipsePath = new THREE.CurvePath();
+            ellipsePath.add(ellipseCurve);
+            var ellipseGeometry = ellipsePath.createPointsGeometry(100);
+
+            var offset = (semiMajAx - perihelion) * scale;
+            var ellipseMat = new THREE.LineBasicMaterial({color:0x3fa134, opacity:.8, linewidth:2, transparent:true});
+            var ellipse = new THREE.Line(ellipseGeometry, ellipseMat);
+            ellipse.position.x = -(offset);
+
+            var argPeriObj = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({color: 0xffff00}));
+            argPeriObj.add(ellipse);
+            argPeriObj.rotation.z = this.degToRad(argOfPerihelion);
+
+            var inclineObj = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({color: 0xffff00}));
+            inclineObj.add(argPeriObj);
+            inclineObj.rotation.x = this.degToRad(inclination);
+
+            var ascNodeObj = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({color: 0xffff00}));
+            ascNodeObj.add(inclineObj);
+            ascNodeObj.rotation.z = this.degToRad(ascendingNode);
+
+            var center = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({color: 0xffff00, opacity:0}));
+            center.add(ascNodeObj);
+            center.rotation.x = -(Math.PI/2);
+            center.position.y = 10
+
             this.anchor.add(center);
         };
 
@@ -65,14 +117,14 @@
             var particleMat = new THREE.PointsMaterial({
 
                 color: 0xcc9966,
-                size: 1.0
+                size: 100.0
             });
 
             for(var a = 0; a < particleCount; ++a){
 
-                var pX = orbitalElements[a][1] * this.scalar;
-                var pY = orbitalElements[a][2] * this.scalar;
-                var pZ = orbitalElements[a][3] * this.scalar;
+                var pX = (parseFloat(orbitalElements[a][1]) * this.scalar);
+                var pY = (parseFloat(orbitalElements[a][2]) * this.scalar);
+                var pZ = (parseFloat(orbitalElements[a][3]) * this.scalar);
                 var particle = new THREE.Vector3(pX, pY, pZ);
                 particles.vertices.push(particle);
             }
@@ -80,7 +132,7 @@
             var particleSystem = new THREE.Points(particles, particleMat);
 
             var center = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({color: 0xffff00}));
-            center.rotation.x = -(Math.PI/2)
+            center.rotation.x = -this.degToRad(90)
             center.add(particleSystem);
             this.anchor.add(center);
         };

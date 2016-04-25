@@ -3,7 +3,7 @@ import json
 import cgi
 import cgitb; cgitb.enable() # Optional; for debugging only
 
-with open("../../data/cartesian/venus-center", "r") as f:
+with open("../../data/cartesian/pluto-barycenter", "r") as f:
   lines = f.readlines()
 
 returnData = []

@@ -14,7 +14,7 @@
         this.scalar = 80;
 
         //Web GL, Three JS components
-        this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
+        this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 20000);
         this.scene = new THREE.Scene();
         this.renderer = new THREE.WebGLRenderer({antialias: true});
         this.viewPort = document.createElement("div");
@@ -24,10 +24,13 @@
         this.initialMousePos = [0, 0];
         this.cameraYaw = 45;//degrees
         this.cameraPitch = 45;//degrees
-        this.yawRange = 540;//degrees
-        this.pitchRange = 180;//degrees
+        this.yawRange = 540;//derees
+        this.pitchRange = 90;//degrees
         this.cameraDistance = 200;
+        this.minCameraDistance = 50;
+        this.maxCameraDistance = 10000;
         this.navigate = false;
+        this.zoomTimer = null;
 
         /**
          * start up function
@@ -74,15 +77,15 @@
             //aligned with the X axis of the solar system, along the vernal equinox
             var xAxisMat = new THREE.LineBasicMaterial({color:0xd1636e, transparent:true, opacity:0.5});
             var xAxis = new THREE.Geometry();
-            xAxis.vertices.push(new THREE.Vector3(2000, 0, 0));
-            xAxis.vertices.push(new THREE.Vector3(-2000, 0, 0));
+            xAxis.vertices.push(new THREE.Vector3(4000, 0, 0));
+            xAxis.vertices.push(new THREE.Vector3(-4000, 0, 0));
             var xAx = new THREE.Line(xAxis, xAxisMat);
             this.scene.add(xAx);
 
             var yAxisMat = new THREE.LineBasicMaterial({color:0x7c3a41, transparent:true, opacity:0.5});
             var yAxis = new THREE.Geometry();
-            yAxis.vertices.push(new THREE.Vector3(0, 0, 2000));
-            yAxis.vertices.push(new THREE.Vector3(0, 0, -2000));
+            yAxis.vertices.push(new THREE.Vector3(0, 0, 4000));
+            yAxis.vertices.push(new THREE.Vector3(0, 0, -4000));
             var yAxis = new THREE.Line(yAxis, yAxisMat);
             this.scene.add(yAxis);
 
@@ -98,6 +101,7 @@
 
                 var axis = new THREE.AxisHelper(50);//red is X, green is Y, blue is Z
                 axis.position.set(0, 0, 0);
+                axis.rotation.x = -(90/180*Math.PI)
                 this.scene.add(axis);
 
                 var loadUnitCircle = function(texture){
@@ -138,6 +142,12 @@
             objOrb.drawPointOrbit(orbit)
         };
 
+        this.drawSpecialOrbit = function(orbit){
+
+            var objOrb = new OrbObj(this.scene, this.scalar);
+            objOrb.drawSpecialOrbit(orbit)
+        };
+
         /**
          * Sets the eventing for the mouse movements 
          * so we can rotate the 3D graphics
@@ -156,6 +166,35 @@
                 if(!this.navigate) return;
                 this.currentMousePos[0] = event.pageX - this.initialMousePos[0];
                 this.currentMousePos[1] = event.pageY - this.initialMousePos[1];
+            };
+
+            var setCameraZoomLevel = function(event){
+
+                var disableNavigation = function(){
+
+                    this.navigate = false;
+                }
+
+                clearTimeout(this.zoomTimer);
+                this.zoomTimer = setTimeout(disableNavigation.bind(this), 50);
+                this.navigate = true;
+
+                //helps keep the zoom feeling natural at exponential distances
+                var zoomBaseLog = Math.log10(this.cameraDistance);
+                var zoom = Math.pow(zoomBaseLog, zoomBaseLog);
+                if(zoom < 3) zoom = 3;
+
+                if(event.deltaY > 0){
+
+                    this.cameraDistance += zoom;
+                }
+                else{
+
+                    this.cameraDistance -= zoom;
+                }
+
+                if(this.cameraDistance >= this.maxCameraDistance) this.cameraDistance = this.maxCameraDistance;
+                if(this.cameraDistance <= this.minCameraDistance) this.cameraDistance = this.minCameraDistance;
             };
 
             var navigationEnd = function(event){
@@ -189,6 +228,12 @@
             this.viewPort.addEventListener("mouseout", 
 
                 navigationEnd.bind(this),
+                false
+            );
+
+            this.viewPort.addEventListener("wheel", 
+
+                setCameraZoomLevel.bind(this),
                 false
             );
         };
